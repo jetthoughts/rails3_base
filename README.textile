@@ -1,0 +1,3 @@
+<pre>
+$ rails new myapp -m https://github.com/jetthoughts/rails3_base/raw/master/rails3_base.rb -T -O
+</pre>
