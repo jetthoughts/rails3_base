@@ -1,0 +1,20 @@
+Expected feature list:
+
+spork
+capybara
+devise
+inherited_resources
+cancan
+guard
+datacleaner for mongodb
+carrierwave(file or gridfs)
+jsbuilder
+has_scope
+responders
+kaminari
+rmagick
+fabrication
+haml
+simple_form
+show_for
+bootstrap
