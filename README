@@ -1,20 +1,35 @@
 Expected feature list:
 
+Database:
+datacleaner
+mongodb
+
+Testing:
+guard - ok
 spork
-capybara
-devise
-inherited_resources
+capybara - ok
+fabrication
+rspec - ok
+
+Auth:
+devise - ok
 cancan
-guard
-datacleaner for mongodb
-carrierwave(file or gridfs)
+
+Images and other attachments:
+carrierwave
+rmagick
+
+Development:
+inherited_resources
 jsbuilder
 has_scope
 responders
-kaminari
-rmagick
-fabrication
-haml
+haml - ok
 simple_form
 show_for
+
+Pagination:
+kaminari
+
+Styles:
 bootstrap
