@@ -1,18 +1,18 @@
 Expected feature list:
 
 Database:
-datacleaner
-mongodb
+datacleaner - in rspec recipe
+mongodb - in mongoid recipe
 
 Testing:
-guard - ok
-spork
-capybara - ok
-fabrication
-rspec - ok
+guard - in guard recipe(with guard-spork)
+spork - in spork recipe
+capybara - in capybara recipe
+rspec - in rspec recipe
+fabrication - ??
 
 Auth:
-devise - ok
+devise - in devise recipe
 cancan
 
 Images and other attachments:
@@ -20,11 +20,11 @@ carrierwave
 rmagick
 
 Development:
+haml - in haml recipe
 inherited_resources
 jsbuilder
 has_scope
 responders
-haml - ok
 simple_form
 show_for
 
@@ -32,4 +32,6 @@ Pagination:
 kaminari
 
 Styles:
-bootstrap
+bootstrap - in html5 recipe (defaults not working now)
+
+
