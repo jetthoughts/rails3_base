@@ -21,21 +21,22 @@ end
 RUBY
 
 if ENV['RECIPES'].blank?
-  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "cleanup", "git"]
+  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "devise", "json", "cleanup", "git"]
 else
   @recipes = ENV['RECIPES'].split(',')
 end
 
-if ENV['DEFAULTS'].blank?
-  #this line should be edited manually
-  @defaults = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork"]
+if ENV['FEATURES'].blank?
+  @features = "haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder".split(',')
 else
-  @defaults = ENV['DEFAULTS'].split(',')
+  @features = ENV['FEATURES'].split(',')
 end
+
+@wizard = @features.include?('with_wizard')
 
 def recipes; @recipes end
 def recipe?(name); @recipes.include?(name) end
-def default?(recipe); @defaults.include?(recipe) end
+def has_feature?(feature); @features.include?(feature) end
 
 def say_custom(tag, text); say "\033[1m\033[36m" + tag.to_s.rjust(10) + "\033[0m" + "  #{text}" end
 def say_recipe(name); say "\033[1m\033[36m" + "recipe".rjust(10) + "\033[0m" + "  Running #{name} recipe..." end
@@ -120,7 +121,7 @@ end
 say_recipe 'HAML'
 
 config = {}
-config['haml'] = @wizard ? ( yes_wizard?("Would you like to use Haml instead of ERB?") if true && true unless config.key?('haml') ) : default?('haml')
+config['haml'] = @wizard ? ( yes_wizard?("Would you like to use Haml instead of ERB?") if true && true unless config.key?('haml') ) : has_feature?('haml')
 @configs[@current_recipe] = config
 
 # Application template recipe for the rails_apps_composer. Check for a newer version here:
@@ -141,9 +142,9 @@ end
 say_recipe 'RSpec'
 
 config = {}
-config['rspec'] = @wizard ? ( yes_wizard?("Would you like to use RSpec instead of TestUnit?") if true && true unless config.key?('rspec') ) : default?('rspec')
-config['factory_girl'] = @wizard ? ( yes_wizard?("Would you like to use factory_girl for test fixtures with RSpec?") if true && true unless config.key?('factory_girl') ) : default?('factory_girl')
-config['machinist'] = @wizard ? ( yes_wizard?("Would you like to use machinist for test fixtures with RSpec?") if true && true unless config.key?('machinist') ) : default?('machinist')
+config['rspec'] = @wizard ? ( yes_wizard?("Would you like to use RSpec instead of TestUnit?") if true && true unless config.key?('rspec') ) : has_feature?('rspec')
+config['factory_girl'] = @wizard ? ( yes_wizard?("Would you like to use factory_girl for test fixtures with RSpec?") if true && true unless config.key?('factory_girl') ) : has_feature?('factory_girl')
+config['machinist'] = @wizard ? ( yes_wizard?("Would you like to use machinist for test fixtures with RSpec?") if true && true unless config.key?('machinist') ) : has_feature?('machinist')
 @configs[@current_recipe] = config
 
 # Application template recipe for the rails_apps_composer. Check for a newer version here:
@@ -266,7 +267,7 @@ end
 say_recipe 'Cucumber'
 
 config = {}
-config['cucumber'] = @wizard ? ( yes_wizard?("Would you like to use Cucumber for your BDD?") if true && true unless config.key?('cucumber') ) : default?('cucumber')
+config['cucumber'] = @wizard ? ( yes_wizard?("Would you like to use Cucumber for your BDD?") if true && true unless config.key?('cucumber') ) : has_feature?('cucumber')
 @configs[@current_recipe] = config
 
 # Application template recipe for the rails_apps_composer. Check for a newer version here:
@@ -323,9 +324,9 @@ end
 say_recipe 'guard'
 
 config = {}
-config['guard'] = @wizard ? ( yes_wizard?("Would you like to use Guard to automate your workflow?") if true && true unless config.key?('guard') ) : default?('guard')
-config['livereload'] = @wizard ? ( yes_wizard?("Would you like to enable the LiveReload guard?") if true && true unless config.key?('livereload') ) : default?('livereload')
-config['spork'] = @wizard ? ( yes_wizard?("Would you like to use Guard with Spork?") if true && true unless config.key?('spork') ) : default?('spork')
+config['guard'] = @wizard ? ( yes_wizard?("Would you like to use Guard to automate your workflow?") if true && true unless config.key?('guard') ) : has_feature?('guard')
+config['livereload'] = @wizard ? ( yes_wizard?("Would you like to enable the LiveReload guard?") if true && true unless config.key?('livereload') ) : has_feature?('livereload')
+config['spork'] = @wizard ? ( yes_wizard?("Would you like to use Guard with Spork?") if true && true unless config.key?('spork') ) : has_feature?('spork')
 @configs[@current_recipe] = config
 
 if config['guard']
@@ -410,7 +411,7 @@ end
 say_recipe 'Mongoid'
 
 config = {}
-config['mongoid'] = @wizard ? ( yes_wizard?("Would you like to use Mongoid to connect to a MongoDB database?") if true && true unless config.key?('mongoid') ) : default?('mongoid')
+config['mongoid'] = @wizard ? ( yes_wizard?("Would you like to use Mongoid to connect to a MongoDB database?") if true && true unless config.key?('mongoid') ) : has_feature?('mongoid')
 @configs[@current_recipe] = config
 
 # Application template recipe for the rails_apps_composer. Check for a newer version here:
@@ -444,7 +445,7 @@ end
 say_recipe 'spork'
 
 config = {}
-config['spork'] = @wizard ? ( yes_wizard?("Would you like to use Spork?") if true && true unless config.key?('spork') ) : default?('spork')
+config['spork'] = @wizard ? ( yes_wizard?("Would you like to use Spork?") if true && true unless config.key?('spork') ) : has_feature?('spork')
 @configs[@current_recipe] = config
 
 if config['spork']
@@ -464,6 +465,100 @@ if config['spork']
 else
   recipes.delete('spork')
   say_wizard "Spork recipe skipped."
+end
+
+
+# >--------------------------------[ Devise ]---------------------------------<
+
+@current_recipe = "devise"
+@before_configs["devise"].call if @before_configs["devise"]
+say_recipe 'Devise'
+
+config = {}
+config['devise'] = @wizard ? ( yes_wizard?("Would you like to use Devise for authentication?") if true && true unless config.key?('devise') ) : has_feature?('devise')
+@configs[@current_recipe] = config
+
+# Application template recipe for the rails_apps_composer. Check for a newer version here:
+# https://github.com/RailsApps/rails_apps_composer/blob/master/recipes/devise.rb
+
+if config['devise']
+  gem 'devise', '>= 2.0.4'
+else
+  recipes.delete('devise')
+end
+
+if config['devise']
+  after_bundler do
+    
+    say_wizard "Devise recipe running 'after bundler'"
+    
+    # Run the Devise generator
+    generate 'devise:install'
+
+    if recipes.include? 'mongo_mapper'
+      gem 'mm-devise'
+      gsub_file 'config/initializers/devise.rb', 'devise/orm/', 'devise/orm/mongo_mapper_active_model'
+      generate 'mongo_mapper:devise User'
+    elsif recipes.include? 'mongoid'
+      # Nothing to do (Devise changes its initializer automatically when Mongoid is detected)
+      # gsub_file 'config/initializers/devise.rb', 'devise/orm/active_record', 'devise/orm/mongoid'
+    end
+
+    # Prevent logging of password_confirmation
+    gsub_file 'config/application.rb', /:password/, ':password, :password_confirmation'
+
+    if recipes.include? 'cucumber'
+      # Cucumber wants to test GET requests not DELETE requests for destroy_user_session_path
+      # (see https://github.com/RailsApps/rails3-devise-rspec-cucumber/issues/3)
+      gsub_file 'config/initializers/devise.rb', 'config.sign_out_via = :delete', 'config.sign_out_via = Rails.env.test? ? :get : :delete'
+    end
+    
+  end
+
+  after_everything do
+
+    say_wizard "Devise recipe running 'after everything'"
+
+    if recipes.include? 'rspec'
+      say_wizard "Copying RSpec files from the rails3-devise-rspec-cucumber examples"
+      begin
+        # copy all the RSpec specs files from the rails3-devise-rspec-cucumber example app
+        get 'https://raw.github.com/RailsApps/rails3-devise-rspec-cucumber/master/spec/factories.rb', 'spec/factories.rb'
+        remove_file 'spec/controllers/home_controller_spec.rb'
+        remove_file 'spec/controllers/users_controller_spec.rb'
+        get 'https://raw.github.com/RailsApps/rails3-devise-rspec-cucumber/master/spec/controllers/home_controller_spec.rb', 'spec/controllers/home_controller_spec.rb'
+        get 'https://raw.github.com/RailsApps/rails3-devise-rspec-cucumber/master/spec/controllers/users_controller_spec.rb', 'spec/controllers/users_controller_spec.rb'
+        remove_file 'spec/models/user_spec.rb'
+        get 'https://raw.github.com/RailsApps/rails3-devise-rspec-cucumber/master/spec/models/user_spec.rb', 'spec/models/user_spec.rb'
+      rescue OpenURI::HTTPError
+        say_wizard "Unable to obtain RSpec example files from the repo"
+      end
+      remove_file 'spec/views/home/index.html.erb_spec.rb'
+      remove_file 'spec/views/home/index.html.haml_spec.rb'
+      remove_file 'spec/views/users/show.html.erb_spec.rb'
+      remove_file 'spec/views/users/show.html.haml_spec.rb'
+      remove_file 'spec/helpers/home_helper_spec.rb'
+      remove_file 'spec/helpers/users_helper_spec.rb'
+    end
+
+  end
+end
+
+
+# >-------------------------------[ JBuilder ]--------------------------------<
+
+@current_recipe = "json"
+@before_configs["json"].call if @before_configs["json"]
+say_recipe 'JBuilder'
+
+config = {}
+config['jbuilder'] = @wizard ? ( yes_wizard?("Would you like to use JBuilder to generate JSON output?") if true && true unless config.key?('jbuilder') ) : has_feature?('jbuilder')
+@configs[@current_recipe] = config
+
+if config['jbuilder']
+  gem 'jbuilder'
+else
+  recipes.delete('jbuilder')
 end
 
 
