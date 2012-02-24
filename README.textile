@@ -1,3 +1,8 @@
+You could use one of the foolowing:
+* Generate new rails 3.1 application with preconfigured gems
+* Choose features on your own passing FEATURES=feature1[,feature2] (full list will be available soon)
+* FEATURES=with_wizard let you to choose features in wizard-mode
+
 <pre>
 $ rails new myapp -m https://github.com/jetthoughts/rails3_base/raw/master/rails3_base.rb -T -O
 </pre>
