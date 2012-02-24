@@ -21,13 +21,13 @@ end
 RUBY
 
 if ENV['RECIPES'].blank?
-  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "devise", "json", "cleanup", "git"]
+  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "devise", "json", "additional_gems", "cleanup", "git"]
 else
   @recipes = ENV['RECIPES'].split(',')
 end
 
 if ENV['FEATURES'].blank?
-  @features = "haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder".split(',')
+  @features = "haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for".split(',')
 else
   @features = ENV['FEATURES'].split(',')
 end
@@ -476,6 +476,7 @@ say_recipe 'Devise'
 
 config = {}
 config['devise'] = @wizard ? ( yes_wizard?("Would you like to use Devise for authentication?") if true && true unless config.key?('devise') ) : has_feature?('devise')
+config['devise_invitable'] = @wizard ? ( yes_wizard?("Would you like to use Devise Invitable for send invitations by email?") if true && true unless config.key?('devise_invitable') ) : has_feature?('devise_invitable')
 @configs[@current_recipe] = config
 
 # Application template recipe for the rails_apps_composer. Check for a newer version here:
@@ -483,6 +484,7 @@ config['devise'] = @wizard ? ( yes_wizard?("Would you like to use Devise for aut
 
 if config['devise']
   gem 'devise', '>= 2.0.4'
+  gem 'devise_invitable' if config['devise_invitable']
 else
   recipes.delete('devise')
 end
@@ -494,6 +496,9 @@ if config['devise']
     
     # Run the Devise generator
     generate 'devise:install'
+
+    # Run the Devise Invitable generator
+    generate 'devise_invitable:install' if config['devise_invitable']
 
     if recipes.include? 'mongo_mapper'
       gem 'mm-devise'
@@ -559,6 +564,55 @@ if config['jbuilder']
   gem 'jbuilder'
 else
   recipes.delete('jbuilder')
+end
+
+
+# >----------------------------[ Additional Gems ]----------------------------<
+
+@current_recipe = "additional_gems"
+@before_configs["additional_gems"].call if @before_configs["additional_gems"]
+say_recipe 'Additional Gems'
+
+config = {}
+config['kaminari'] = @wizard ? ( yes_wizard?("Would you like to use kaminari for pagination?") if true && true unless config.key?('kaminari') ) : has_feature?('kaminari')
+config['cancan'] = @wizard ? ( yes_wizard?("Would you like to install CanCan as authorization library?") if true && true unless config.key?('cancan') ) : has_feature?('cancan')
+config['inherited_resources'] = @wizard ? ( yes_wizard?("Would you like to speed up your development with Inherited Resources?") if true && true unless config.key?('inherited_resources') ) : has_feature?('inherited_resources')
+config['has_scope'] = @wizard ? ( yes_wizard?("Would you like to install HasScope?") if true && true unless config.key?('has_scope') ) : has_feature?('has_scope')
+config['responders'] = @wizard ? ( yes_wizard?("Would you like to DRY our code with Responders?") if true && true unless config.key?('responders') ) : has_feature?('responders')
+config['show_for'] = @wizard ? ( yes_wizard?("Would you like to quickly show model info with ShowFor?") if true && true unless config.key?('show_for') ) : has_feature?('show_for')
+@configs[@current_recipe] = config
+
+# To not create lots of recipes added a number of simple-to-install gems
+
+# Pagination
+if config['kaminari']
+  gem 'kaminari'
+end
+
+if config['cancan']
+  gem 'cancan'
+end
+
+if config['inherited_resources']
+  gem 'inherited_resources'
+end
+
+if config['has_scope']
+  gem 'has_scope'
+end
+
+if config['responders']
+  gem 'responders'
+  after_bundler do
+    generate 'responders:install'
+  end
+end
+
+if config['show_for']
+  gem 'show_for'
+  after_bundler do
+    generate 'show_for:install'
+  end
 end
 
 

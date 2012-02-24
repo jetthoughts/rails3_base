@@ -1,13 +1,10 @@
-RECIPES=haml,rspec,cucumber,guard,mongoid,spork,devise,json,cleanup,git
-FEATURES=haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder
-
 commands(for testing purpose):
 
 generating template(from rails_composer folder):
-rake print --silent RECIPES=haml,rspec,cucumber,guard,mongoid,spork,devise,json,cleanup,git > ../rails3_base/rails3_base.rb
+rake print --silent RECIPES=haml,rspec,cucumber,guard,mongoid,spork,devise,json,additional_gems,cleanup,git > ../rails3_base/rails3_base.rb
 
 rails project from template:
-FEATURES=haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder rails new myapp -m rails3_base/rails3_base.rb -O -T
+FEATURES=haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for rails new myapp -m rails3_base/rails3_base.rb -O -T
 
 Expected feature list:
 
@@ -40,7 +37,7 @@ simple_form
 show_for
 
 Pagination:
-kaminari
+kaminari - in additional_gems recipe
 
 Styles:
 bootstrap - in html5 recipe (defaults not working now)
@@ -49,19 +46,11 @@ ToDo:
 
 gem 'bootstrap-sass', '~> 1.4.3'
 
-gem 'devise_invitable', '~> 0.6.1'
-gem 'cancan', '~> 1.6.7'
-
-gem 'inherited_resources'
-gem 'has_scope'
-gem 'responders'
-gem 'show_for', git: 'git://github.com/plataformatec/show_for.git'
 gem 'simple_form', git: 'git://github.com/plataformatec/simple_form.git', ref: '95f711366184cf38ebf9a571387ba5006114a40a'
 gem 'pacecar'
 
 gem 'pg', '~> 0.12.2'
 gem 'state_machine'
-gem 'kaminari', '~> 0.13.0'
 gem 'carrierwave', '~> 0.5.8'
 gem 'fog', '~> 1.1.2'
 gem 'rmagick', '~> 2.13.1'
