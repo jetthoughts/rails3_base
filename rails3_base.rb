@@ -21,7 +21,7 @@ end
 RUBY
 
 if ENV['RECIPES'].blank?
-  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "devise", "json", "additional_gems", "twitter_bootstrap", "heroku", "cleanup", "git"]
+  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "carrierwave", "spork", "devise", "json", "additional_gems", "capybara", "twitter_bootstrap", "heroku", "cleanup", "git"]
 else
   @recipes = ENV['RECIPES'].split(',')
 end
@@ -314,6 +314,8 @@ if config['cucumber']
       end
     end
   end
+else
+  recipes.delete('cucumber')
 end
 
 
@@ -435,6 +437,27 @@ if config['mongoid']
     # remove the unnecessary 'config/database.yml' file
     remove_file 'config/database.yml'
   end
+end
+
+
+# >------------------------------[ Carrierwave ]------------------------------<
+
+@current_recipe = "carrierwave"
+@before_configs["carrierwave"].call if @before_configs["carrierwave"]
+say_recipe 'Carrierwave'
+
+config = {}
+config['carrierwave'] = @wizard ? ( yes_wizard?("Would you like to use CarrierWave?") if true && true unless config.key?('carrierwave') ) : has_feature?('carrierwave')
+@configs[@current_recipe] = config
+
+if config['carrierwave']
+  gem 'carrierwave'
+
+  if recipe?('mongoid')
+    gem 'carrierwave-mongoid', :require => 'carrierwave/mongoid'
+  end
+else
+  recipes.delete('carrierwave')
 end
 
 
@@ -575,13 +598,15 @@ say_recipe 'Additional Gems'
 
 config = {}
 config['kaminari'] = @wizard ? ( yes_wizard?("Would you like to use kaminari for pagination?") if true && true unless config.key?('kaminari') ) : has_feature?('kaminari')
-config['cancan'] = @wizard ? ( yes_wizard?("Would you like to install CanCan as authorization library?") if true && true unless config.key?('cancan') ) : has_feature?('cancan')
+config['cancan'] = @wizard ? ( yes_wizard?("Would you like to install CanCan?") if true && true unless config.key?('cancan') ) : has_feature?('cancan')
 config['inherited_resources'] = @wizard ? ( yes_wizard?("Would you like to speed up your development with Inherited Resources?") if true && true unless config.key?('inherited_resources') ) : has_feature?('inherited_resources')
 config['has_scope'] = @wizard ? ( yes_wizard?("Would you like to install HasScope?") if true && true unless config.key?('has_scope') ) : has_feature?('has_scope')
-config['responders'] = @wizard ? ( yes_wizard?("Would you like to DRY our code with Responders?") if true && true unless config.key?('responders') ) : has_feature?('responders')
+config['responders'] = @wizard ? ( yes_wizard?("Would you like to install Responders?") if true && true unless config.key?('responders') ) : has_feature?('responders')
 config['show_for'] = @wizard ? ( yes_wizard?("Would you like to quickly show model info with ShowFor?") if true && true unless config.key?('show_for') ) : has_feature?('show_for')
 config['simple_form'] = @wizard ? ( yes_wizard?("Would you like to install SimpleForm?") if true && true unless config.key?('simple_form') ) : has_feature?('simple_form')
 config['unicorn'] = @wizard ? ( yes_wizard?("Would you like to use Unicorn?") if true && true unless config.key?('unicorn') ) : has_feature?('unicorn')
+config['rmagick'] = @wizard ? ( yes_wizard?("Would you like to install RMagick?") if true && true unless config.key?('rmagick') ) : has_feature?('rmagick')
+config['fabrication'] = @wizard ? ( yes_wizard?("Would you like to install Fabrication?") if true && true unless config.key?('fabrication') ) : has_feature?('fabrication')
 @configs[@current_recipe] = config
 
 # To not create lots of recipes added a number of simple-to-install gems
@@ -626,6 +651,61 @@ end
 
 if config['unicorn']
   gem 'unicorn', group: :production
+end
+
+if config['rmagick']
+  gem 'rmagick'
+end
+
+if config['fabrication']
+  gem 'fabrication'
+end
+
+if config['cancan']
+  gem 'cancan'
+end
+
+if config['responders']
+  gem 'responders'
+end
+
+
+# >-------------------------------[ Capybara ]--------------------------------<
+
+@current_recipe = "capybara"
+@before_configs["capybara"].call if @before_configs["capybara"]
+say_recipe 'Capybara'
+
+config = {}
+config['capybara'] = @wizard ? ( yes_wizard?("Would you like to use Capybara?") if true && true unless config.key?('capybara') ) : has_feature?('capybara')
+config['capybara_webkit'] = @wizard ? ( yes_wizard?("Would you like to use Webkit with Capybara?") if true && true unless config.key?('capybara_webkit') ) : has_feature?('capybara_webkit')
+@configs[@current_recipe] = config
+
+if config['capybara'] and not recipe?('cucumber')
+  gem 'capybara-webkit', :group => :test if config['capybara_webkit'] 
+
+  gem 'capybara', :group => [:development, :test]
+
+  after_bundler do
+    create_file "spec/support/capybara.rb", <<-RUBY
+require 'capybara/rails'
+require 'capybara/rspec'
+    RUBY
+
+    create_file "spec/requests/home_spec.rb", <<-RUBY
+require 'spec_helper'
+
+describe 'visiting the homepage' do
+  before do
+    visit '/'
+  end
+
+  it 'should have a body' do
+    page.should have_css('body')    
+  end
+end
+    RUBY
+  end
 end
 
 

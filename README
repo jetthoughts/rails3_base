@@ -1,10 +1,10 @@
 commands(for testing purpose):
 
 generating template(from rails_composer folder):
-rake print --silent RECIPES=haml,rspec,cucumber,guard,mongoid,spork,devise,json,additional_gems,twitter_bootstrap,heroku,cleanup,git > ../rails3_base/rails3_base.rb
+rake print --silent RECIPES=haml,rspec,cucumber,guard,mongoid,carrierwave,spork,devise,json,additional_gems,capybara,twitter_bootstrap,heroku,cleanup,git > ../rails3_base/rails3_base.rb
 
 rails project from template:
-rm -rf myapp && FEATURES=haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for,unicorn,bootstrap,simple_form rails new myapp -m rails3_base/rails3_base.rb -O -T
+rm -rf myapp && FEATURES=haml,rspec,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for,unicorn,bootstrap,simple_form,capybara,capybara_webkit,carrierwave,rmagick,fabrication,cancan,responders rails new myapp -m rails3_base/rails3_base.rb -O -T
 
 Expected feature list:
 
@@ -17,22 +17,22 @@ guard - in guard recipe(with guard-spork)
 spork - in spork recipe
 capybara - in capybara recipe
 rspec - in rspec recipe
-fabrication - ??
+fabrication - in additional_gems recipe
 
 Auth:
 devise - in devise recipe
-cancan
+cancan - in additional_gems recipe
 
 Images and other attachments:
-carrierwave
-rmagick
+carrierwave - in carrierwave recipe
+rmagick - in additional_gems recipe
 
 Development:
 haml - in haml recipe
 inherited_resources - in additional_gems recipe
 jsbuilder - ?? jbuilder? 
 has_scope - in additional_gems recipe
-responders
+responders - in additional_gems recipe
 simple_form - in additional_gems recipe
 show_for - in additional_gems recipe
 
@@ -44,13 +44,13 @@ bootstrap - in twitter_bootstrap recipe
 
 ToDo:
 
+CarrierWave - Test with mongodb and add configs if not ok.
+
 gem 'pacecar'
 
 gem 'pg', '~> 0.12.2'
 gem 'state_machine'
-gem 'carrierwave', '~> 0.5.8'
 gem 'fog', '~> 1.1.2'
-gem 'rmagick', '~> 2.13.1'
 
 gem 'yajl-ruby', '~> 1.1.0'
 gem 'newrelic_rpm'
@@ -66,7 +66,6 @@ end
 group :test do
   gem 'simplecov', '~> 0.5.4', :require => false
   gem 'factory_girl_rails', '~> 1.5.0'
-  gem 'capybara-webkit', '~> 0.7.2'
   gem 'sunspot_test', '0.4.0'
   gem 'shoulda-matchers', '1.0.0'
 end
