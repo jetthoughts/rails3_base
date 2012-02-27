@@ -21,13 +21,13 @@ end
 RUBY
 
 if ENV['RECIPES'].blank?
-  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "devise", "json", "additional_gems", "cleanup", "git"]
+  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "spork", "devise", "json", "additional_gems", "twitter_bootstrap", "heroku", "cleanup", "git"]
 else
   @recipes = ENV['RECIPES'].split(',')
 end
 
 if ENV['FEATURES'].blank?
-  @features = "haml,rspec,cucumber,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for".split(',')
+  @features = []
 else
   @features = ENV['FEATURES'].split(',')
 end
@@ -580,6 +580,8 @@ config['inherited_resources'] = @wizard ? ( yes_wizard?("Would you like to speed
 config['has_scope'] = @wizard ? ( yes_wizard?("Would you like to install HasScope?") if true && true unless config.key?('has_scope') ) : has_feature?('has_scope')
 config['responders'] = @wizard ? ( yes_wizard?("Would you like to DRY our code with Responders?") if true && true unless config.key?('responders') ) : has_feature?('responders')
 config['show_for'] = @wizard ? ( yes_wizard?("Would you like to quickly show model info with ShowFor?") if true && true unless config.key?('show_for') ) : has_feature?('show_for')
+config['simple_form'] = @wizard ? ( yes_wizard?("Would you like to install SimpleForm?") if true && true unless config.key?('simple_form') ) : has_feature?('simple_form')
+config['unicorn'] = @wizard ? ( yes_wizard?("Would you like to use Unicorn?") if true && true unless config.key?('unicorn') ) : has_feature?('unicorn')
 @configs[@current_recipe] = config
 
 # To not create lots of recipes added a number of simple-to-install gems
@@ -613,6 +615,112 @@ if config['show_for']
   after_bundler do
     generate 'show_for:install'
   end
+end
+
+if config['simple_form']
+  gem 'simple_form'
+  after_bundler do
+    generate 'simple_form:install' + (recipe?('twitter_bootstrap') ? ' --bootstrap' : '')
+  end
+end
+
+if config['unicorn']
+  gem 'unicorn', group: :production
+end
+
+
+# >---------------------------[ twitter-bootstrap ]---------------------------<
+
+@current_recipe = "twitter_bootstrap"
+@before_configs["twitter_bootstrap"].call if @before_configs["twitter_bootstrap"]
+say_recipe 'twitter-bootstrap'
+
+config = {}
+config['bootstrap'] = @wizard ? ( yes_wizard?("Do you eant to use Twitter-Bootstrap?") if true && true unless config.key?('bootstrap') ) : has_feature?('bootstrap')
+@configs[@current_recipe] = config
+
+# Created instead of html5 recipe to be yes/no question.
+
+if config['bootstrap']
+  # https://github.com/thomas-mcdonald/bootstrap-sass
+  # http://rubysource.com/twitter-bootstrap-less-and-sass-understanding-your-options-for-rails-3-1/
+  gem 'bootstrap-sass', '~> 2.0.1'
+end
+
+after_bundler do
+  say_wizard "HTML5 recipe running 'after bundler'"
+  # add a humans.txt file
+  get "https://raw.github.com/RailsApps/rails3-application-templates/master/files/humans.txt", "public/humans.txt"
+  # install a front-end framework for HTML5 and CSS3
+  if config['bootstrap']
+    say_wizard "installing Twitter Bootstrap HTML5 framework"
+    insert_into_file "app/assets/javascripts/application.js", "//= require bootstrap\n", :after => "jquery_ujs\n"
+    copy_file 'app/assets/stylesheets/application.css', 'app/assets/stylesheets/application.css.scss'
+    remove_file 'app/assets/stylesheets/application.css'
+    insert_into_file "app/assets/stylesheets/application.css.scss", "\n@import 'bootstrap';\n", :after => "*/\n"
+  end
+  # Set up the default application layout
+  if recipes.include? 'haml'
+    # Haml version of default application layout
+    remove_file 'app/views/layouts/application.html.erb'
+    remove_file 'app/views/layouts/application.html.haml'
+    get "https://raw.github.com/RailsApps/rails3-application-templates/master/files/views/layouts/application.html.haml", "app/views/layouts/application.html.haml"
+    gsub_file "app/views/layouts/application.html.haml", /App_Name/, "#{app_name.humanize.titleize}"
+  else
+    # ERB version of default application layout
+    remove_file 'app/views/layouts/application.html.erb'
+    remove_file 'app/views/layouts/application.html.haml'
+    get "https://raw.github.com/RailsApps/rails3-application-templates/master/files/views/layouts/application.html.erb", "app/views/layouts/application.html.erb"
+    gsub_file "app/views/layouts/application.html.erb", /App_Name/, "#{app_name.humanize.titleize}"
+  end
+end
+
+
+# >--------------------------------[ Heroku ]---------------------------------<
+
+@current_recipe = "heroku"
+@before_configs["heroku"].call if @before_configs["heroku"]
+say_recipe 'Heroku'
+
+config = {}
+config['create'] = @wizard ? ( yes_wizard?("Automatically create appname.heroku.com?") if true && true unless config.key?('create') ) : has_feature?('create')
+config['staging'] = @wizard ? ( yes_wizard?("Create staging app? (appname-staging.heroku.com)") if config['create'] && true unless config.key?('staging') ) : has_feature?('staging')
+config['domain'] = @wizard ? ( ask_wizard("Specify custom domain (or leave blank):") if config['create'] && true unless config.key?('domain') ) : has_feature?('domain')
+config['deploy'] = @wizard ? ( yes_wizard?("Deploy immediately?") if config['create'] && true unless config.key?('deploy') ) : has_feature?('deploy')
+@configs[@current_recipe] = config
+
+heroku_name = app_name.gsub('_','')
+
+gem 'heroku', group: :development
+
+after_everything do
+  if config['create']
+    say_wizard "Creating Heroku app '#{heroku_name}.heroku.com'"
+    # system "heroku apps:destroy --app #{heroku_name} --confirm #{heroku_name}"
+
+    while !system("heroku create #{heroku_name}")
+      heroku_name = ask_wizard("What do you want to call your app? ")
+    end
+  end
+
+  if config['staging']
+    staging_name = "#{heroku_name}-staging"
+    say_wizard "Creating staging Heroku app '#{staging_name}.heroku.com'"
+    while !system("heroku create #{staging_name}")
+      staging_name = ask_wizard("What do you want to call your staging app?")
+    end
+    git :remote => "rm heroku"
+    git :remote => "add production git@heroku.com:#{heroku_name}.git"
+    git :remote => "add staging git@heroku.com:#{staging_name}.git"
+    say_wizard "Created branches 'production' and 'staging' for Heroku deploy."
+  end
+
+  unless config['domain'].blank?
+    run "heroku addons:add custom_domains"
+    run "heroku domains:add #{config['domain']}"
+  end
+
+  git :push => "#{config['staging'] ? 'staging' : 'heroku'} master" if config['deploy']
 end
 
 
