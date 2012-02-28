@@ -1,4 +1,10 @@
-You could use one of the foolowing:
+h2. Introduction
+
+This is the rails 3.1 application template to start development in a minute with full set of useful gems.
+
+h2. Usage
+
+You could use one of the following:
 
 * Generate new rails 3.1 application with preconfigured gems
 * Choose features on your own passing FEATURES=feature1[,feature2] (full list will be available soon)
@@ -11,7 +17,7 @@ $ rails new myapp -m https://github.com/jetthoughts/rails3_base/raw/master/rails
 If you want to manage your features by hand, you could use command below:
 
 <pre>
-FEATURES=haml,rspec,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for,unicorn,bootstrap,simple_form,capybara,capybara_webkit,carrierwave,rmagick,fabrication,cancan,responders,sunspot,sunspot_solr,sunspot_test,simplecov,shoulda,responders,pacecar,state_machine,fog,yajl_ruby,newrelic_rpm,tddium,factory_girl_rails rails new myapp -m rails3_base/rails3_base.rb -O -T
+$ FEATURES=haml,rspec,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for,unicorn,bootstrap,simple_form,capybara,capybara_webkit,carrierwave,rmagick,fabrication,cancan,responders,sunspot,sunspot_solr,sunspot_test,simplecov,shoulda,responders,pacecar,state_machine,fog,yajl_ruby,newrelic_rpm,tddium,factory_girl_rails rails new myapp -m rails3_base/rails3_base.rb -O -T
 </pre>
 
 Just leave features that you need, change app name and add/remove options.
