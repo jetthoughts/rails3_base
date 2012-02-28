@@ -21,13 +21,13 @@ end
 RUBY
 
 if ENV['RECIPES'].blank?
-  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "carrierwave", "spork", "devise", "json", "additional_gems", "capybara", "twitter_bootstrap", "heroku", "cleanup", "git"]
+  @recipes = ["haml", "rspec", "cucumber", "guard", "mongoid", "carrierwave", "spork", "devise", "json", "additional_gems", "capybara", "simplecov", "sunspot", "shoulda", "twitter_bootstrap", "heroku", "cleanup", "git"]
 else
   @recipes = ENV['RECIPES'].split(',')
 end
 
 if ENV['FEATURES'].blank?
-  @features = []
+  @features = "haml,rspec,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for,unicorn,bootstrap,simple_form,capybara,capybara_webkit,carrierwave,rmagick,fabrication,cancan,responders,sunspot,sunspot_solr,sunspot_test,simplecov,shoulda,responders,pacecar,state_machine,fog,yajl_ruby,newrelic_rpm,tddium,factory_girl_rails".split(',')
 else
   @features = ENV['FEATURES'].split(',')
 end
@@ -607,6 +607,14 @@ config['simple_form'] = @wizard ? ( yes_wizard?("Would you like to install Simpl
 config['unicorn'] = @wizard ? ( yes_wizard?("Would you like to use Unicorn?") if true && true unless config.key?('unicorn') ) : has_feature?('unicorn')
 config['rmagick'] = @wizard ? ( yes_wizard?("Would you like to install RMagick?") if true && true unless config.key?('rmagick') ) : has_feature?('rmagick')
 config['fabrication'] = @wizard ? ( yes_wizard?("Would you like to install Fabrication?") if true && true unless config.key?('fabrication') ) : has_feature?('fabrication')
+config['postgres'] = @wizard ? ( yes_wizard?("Would you like to use PostgreSQL?") if true && true unless config.key?('postgres') ) : has_feature?('postgres')
+config['pacecar'] = @wizard ? ( yes_wizard?("Would you like to generate scope methods with Pacecar?") if true && true unless config.key?('pacecar') ) : has_feature?('pacecar')
+config['state_machine'] = @wizard ? ( yes_wizard?("Would you like to add AASM?") if true && true unless config.key?('state_machine') ) : has_feature?('state_machine')
+config['fog'] = @wizard ? ( yes_wizard?("Would you like to use Fog?") if true && true unless config.key?('fog') ) : has_feature?('fog')
+config['yajl_ruby'] = @wizard ? ( yes_wizard?("Would you like to use YAJL C Bindings for Ruby?") if true && true unless config.key?('yajl_ruby') ) : has_feature?('yajl_ruby')
+config['newrelic_rpm'] = @wizard ? ( yes_wizard?("Would you like to use New Relic Ruby Agent?") if true && true unless config.key?('newrelic_rpm') ) : has_feature?('newrelic_rpm')
+config['tddium'] = @wizard ? ( yes_wizard?("Would you like to use tddium?") if true && true unless config.key?('tddium') ) : has_feature?('tddium')
+config['factory_girl_rails'] = @wizard ? ( yes_wizard?("Would you like to use factory_girl_rails?") if true && true unless config.key?('factory_girl_rails') ) : has_feature?('factory_girl_rails')
 @configs[@current_recipe] = config
 
 # To not create lots of recipes added a number of simple-to-install gems
@@ -669,6 +677,38 @@ if config['responders']
   gem 'responders'
 end
 
+if config['postgres'] and not recipe?('mongoid')
+  gem 'pg', '~> 0.13'
+end
+
+if config['pacecar']
+  gem 'pacecar'
+end
+
+if config['state_machine']
+  gem 'state_machine'
+end
+
+if config['fog']
+  gem 'fog'
+end
+
+if config['yajl_ruby']
+  gem 'yajl-ruby'
+end
+
+if config['newrelic_rpm']
+  gem 'newrelic_rpm'
+end
+
+if config['tddium']
+  gem 'tddium'
+end
+
+if config['factory_girl_rails']
+  gem 'factory_girl_rails'
+end
+
 
 # >-------------------------------[ Capybara ]--------------------------------<
 
@@ -706,6 +746,100 @@ describe 'visiting the homepage' do
 end
     RUBY
   end
+end
+
+
+# >-------------------------------[ SimpleCov ]-------------------------------<
+
+@current_recipe = "simplecov"
+@before_configs["simplecov"].call if @before_configs["simplecov"]
+say_recipe 'SimpleCov'
+
+config = {}
+config['simplecov'] = @wizard ? ( yes_wizard?("Would you like to use SimpleCov?") if true && true unless config.key?('simplecov') ) : has_feature?('simplecov')
+@configs[@current_recipe] = config
+
+if config['simplecov']
+  gem 'simplecov', :require => false, :group => :test
+  after_bundler do
+    simplecov = <<-TEXT
+  require 'simplecov'
+  SimpleCov.start 'rails'
+    TEXT
+    if recipe?('rspec')
+      prepend_file "spec/spec_helper.rb", simplecov
+    elsif recipe?('cucumber')
+      prepend_file "features/support/env.rb", simplecov
+    else # Test:Unit assumed
+      prepend_file "test/test_helper.rb", simplecov
+    end
+  end
+else
+  recipes.delete('simplecov')
+end
+
+
+# >--------------------------------[ Sunspot ]--------------------------------<
+
+@current_recipe = "sunspot"
+@before_configs["sunspot"].call if @before_configs["sunspot"]
+say_recipe 'Sunspot'
+
+config = {}
+config['sunspot'] = @wizard ? ( yes_wizard?("Would you like to use Sunspot?") if true && true unless config.key?('sunspot') ) : has_feature?('sunspot')
+config['sunspot_solr'] = @wizard ? ( yes_wizard?("Would you like to use Sunspot Solr?") if config['sunspot'] && true unless config.key?('sunspot_solr') ) : has_feature?('sunspot_solr')
+config['sunspot_test'] = @wizard ? ( yes_wizard?("Would you like to use Sunspot Test?") if config['sunspot'] && true unless config.key?('sunspot_test') ) : has_feature?('sunspot_test')
+@configs[@current_recipe] = config
+
+if config['sunspot']
+  gem 'sunspot_rails'
+
+  if config['sunspot_solr']
+    gem 'sunspot_solr', group: :development
+    after_bundler do
+      rake 'sunspot:solr:start'
+    end
+  end
+
+  if config['sunspot_test']
+    gem 'sunspot_test'
+    after_bundler do
+      if recipe?('cucumber')
+        prepend_file "features/support/env.rb", "require 'sunspot_test/cucumber'"
+      elsif recipe?('rspec')
+        prepend_file "spec/spec_helper.rb", "require 'sunspot_test/rspec'"
+      else # Test:Unit assumed
+        prepend_file "test/test_helper.rb", "require 'sunspot_test/test_unit'"
+      end
+    end
+  end
+
+  after_bundler do
+    generate 'sunspot_rails:install'
+  end
+else
+  recipes.delete('sunspot')
+end
+
+
+# >--------------------------------[ Shoulda ]--------------------------------<
+
+@current_recipe = "shoulda"
+@before_configs["shoulda"].call if @before_configs["shoulda"]
+say_recipe 'Shoulda'
+
+config = {}
+config['shoulda'] = @wizard ? ( yes_wizard?("Would you like to use Shoulda?") if true && true unless config.key?('shoulda') ) : has_feature?('shoulda')
+@configs[@current_recipe] = config
+
+if config['shoulda']
+  if recipe?('rspec')
+    gem 'shoulda-matchers', group: :test
+  else
+    gem 'shoulda', group: :test
+  end
+else
+  recipes.delete('shoulda')
 end
 
 

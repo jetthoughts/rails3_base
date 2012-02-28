@@ -1,8 +1,60 @@
 You could use one of the foolowing:
+
 * Generate new rails 3.1 application with preconfigured gems
 * Choose features on your own passing FEATURES=feature1[,feature2] (full list will be available soon)
-* FEATURES=with_wizard let you to choose features in wizard-mode
+* FEATURES=with_wizard let you choose features in wizard-mode
 
 <pre>
 $ rails new myapp -m https://github.com/jetthoughts/rails3_base/raw/master/rails3_base.rb -T -O
 </pre>
+
+If you want to manage your features by hand, you could use command below:
+
+<pre>
+FEATURES=haml,rspec,guard,mongoid,spork,devise,jbuilder,devise_invitable,kaminari,cancan,inherited_resources,has_scope,responders,show_for,unicorn,bootstrap,simple_form,capybara,capybara_webkit,carrierwave,rmagick,fabrication,cancan,responders,sunspot,sunspot_solr,sunspot_test,simplecov,shoulda,responders,pacecar,state_machine,fog,yajl_ruby,newrelic_rpm,tddium,factory_girl_rails rails new myapp -m rails3_base/rails3_base.rb -O -T
+</pre>
+
+Just leave features that you need, change app name and add/remove options.
+
+h2. Features list(not complete):
+
+h3. Database:
+
+* datacleaner - in rspec recipe
+* mongodb - in mongoid recipe
+
+h3. Testing:
+
+* guard - in guard recipe(with guard-spork)
+* spork - in spork recipe
+* capybara - in capybara recipe
+* rspec - in rspec recipe
+* fabrication - in additional_gems recipe
+
+h3. Auth:
+
+* devise - in devise recipe
+* cancan - in additional_gems recipe
+
+h3. Images and other attachments:
+
+* carrierwave - in carrierwave recipe
+* rmagick - in additional_gems recipe
+
+h3. Development:
+
+* haml - in haml recipe
+* inherited_resources - in additional_gems recipe
+* jsbuilder - ?? jbuilder? 
+* has_scope - in additional_gems recipe
+* responders - in additional_gems recipe
+* simple_form - in additional_gems recipe
+* show_for - in additional_gems recipe
+
+h3. Pagination:
+
+* kaminari - in additional_gems recipe
+
+h3. Styles:
+
+* bootstrap - in twitter_bootstrap recipe
